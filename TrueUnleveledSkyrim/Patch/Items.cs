@@ -14,45 +14,51 @@ namespace TrueUnleveledSkyrim.Patch
         private static ILinkCache BaseCache { get; set; } = null!;
 
         // A struct to hold the original and morrowloot-inspired stats of an armor.
-        private class ArmorValues
+        private class ArmorValues(
+            float armorValue,
+            float armorWeight,
+            uint armorPrice,
+            float armorValueMod,
+            float armorWeightMod,
+            uint armorPriceMod)
         {
-            public float ArmorValue { get; set; }
-            public float ArmorWeight { get; set; }
-            public double ArmorPrice { get; set; }
+            public float ArmorValue { get; set; } = armorValue;
+            public float ArmorWeight { get; set; } = armorWeight;
+            public double ArmorPrice { get; set; } = armorPrice;
 
-            public float ArmorValueMod { get; set; }
-            public float ArmorWeightMod { get; set; }
-            public double ArmorPriceMod { get; set; }
-
-            public ArmorValues(float armorValue, float armorWeight, uint armorPrice, float armorValueMod, float armorWeightMod, uint armorPriceMod)
-            {
-                ArmorValue = armorValue; ArmorWeight = armorWeight; ArmorPrice = armorPrice;
-                ArmorValueMod = armorValueMod; ArmorWeightMod = armorWeightMod; ArmorPriceMod = armorPriceMod;
-            }
+            public float ArmorValueMod { get; set; } = armorValueMod;
+            public float ArmorWeightMod { get; set; } = armorWeightMod;
+            public double ArmorPriceMod { get; set; } = armorPriceMod;
         };
 
         // A struct to hold the original and morrowloot-inspired stats of a weapon.
-        private class WeaponValues
+        private class WeaponValues(
+            float weaponDamage,
+            float weaponWeight,
+            float weaponPrice,
+            float weaponSpeed,
+            float weaponCritDamage,
+            float weaponCritMult,
+            float weaponDamageMod,
+            float weaponWeightMod,
+            float weaponPriceMod,
+            float weaponSpeedMod,
+            float weaponCritDamageMod,
+            float weaponCritMultMod)
         {
-            public float WeaponDamage { get; set; }
-            public float WeaponWeight { get; set; }
-            public double WeaponPrice { get; set; }
-            public float WeaponSpeed { get; set; }
-            public float WeaponCritDamage { get; set; }
-            public float WeaponCritMult { get; set; }
+            public float WeaponDamage { get; set; } = weaponDamage;
+            public float WeaponWeight { get; set; } = weaponWeight;
+            public double WeaponPrice { get; set; } = weaponPrice;
+            public float WeaponSpeed { get; set; } = weaponSpeed;
+            public float WeaponCritDamage { get; set; } = weaponCritDamage;
+            public float WeaponCritMult { get; set; } = weaponCritMult;
 
-            public float WeaponDamageMod { get; set; }
-            public float WeaponWeightMod { get; set; }
-            public double WeaponPriceMod { get; set; }
-            public float WeaponSpeedMod { get; set; }
-            public float WeaponCritDamageMod { get; set; }
-            public float WeaponCritMultMod { get; set; }
-
-            public WeaponValues(float weaponDamage, float weaponWeight, float weaponPrice, float weaponSpeed, float weaponCritDamage, float weaponCritMult, float weaponDamageMod, float weaponWeightMod, float weaponPriceMod, float weaponSpeedMod, float weaponCritDamageMod, float weaponCritMultMod)
-            {
-                WeaponDamage = weaponDamage; WeaponWeight = weaponWeight; WeaponPrice = weaponPrice; WeaponSpeed = weaponSpeed; WeaponCritDamage = weaponCritDamage; WeaponCritMult = weaponCritMult;
-                WeaponDamageMod = weaponDamageMod; WeaponWeightMod = weaponWeightMod; WeaponPriceMod = weaponPriceMod; WeaponSpeedMod = weaponSpeedMod; WeaponCritDamageMod = weaponCritDamageMod; WeaponCritMultMod = weaponCritMultMod;
-            }
+            public float WeaponDamageMod { get; set; } = weaponDamageMod;
+            public float WeaponWeightMod { get; set; } = weaponWeightMod;
+            public double WeaponPriceMod { get; set; } = weaponPriceMod;
+            public float WeaponSpeedMod { get; set; } = weaponSpeedMod;
+            public float WeaponCritDamageMod { get; set; } = weaponCritDamageMod;
+            public float WeaponCritMultMod { get; set; } = weaponCritMultMod;
         };
 
         private static List<IFormLinkGetter<IKeywordGetter>> WeaponMaterialKeywords { get; } = new List<IFormLinkGetter<IKeywordGetter>>
@@ -266,8 +272,8 @@ namespace TrueUnleveledSkyrim.Patch
         };
 
 
-        private static List<IFormLinkGetter<IKeywordGetter>> ArmorMaterialKeywords { get; } = new List<IFormLinkGetter<IKeywordGetter>>
-        {
+        private static List<IFormLinkGetter<IKeywordGetter>> ArmorMaterialKeywords { get; } =
+        [
             Skyrim.Keyword.ArmorMaterialDaedric,
             Skyrim.Keyword.ArmorMaterialDragonplate,
             Skyrim.Keyword.ArmorMaterialDragonscale,
@@ -276,19 +282,19 @@ namespace TrueUnleveledSkyrim.Patch
             Skyrim.Keyword.ArmorNightingale,
             Dragonborn.Keyword.DLC2ArmorMaterialStalhrimHeavy,
             Dragonborn.Keyword.DLC2ArmorMaterialStalhrimLight
-        };
+        ];
 
-        private static List<IFormLinkGetter<IKeywordGetter>> ArmorTypeKeywords { get; } = new List<IFormLinkGetter<IKeywordGetter>>
-        {
+        private static List<IFormLinkGetter<IKeywordGetter>> ArmorTypeKeywords { get; } =
+        [
             Skyrim.Keyword.ArmorBoots,
             Skyrim.Keyword.ArmorCuirass,
             Skyrim.Keyword.ArmorGauntlets,
             Skyrim.Keyword.ArmorHelmet,
             Skyrim.Keyword.ArmorShield
-        };
+        ];
 
-        private static List<IFormLinkGetter<IArmorGetter>> BaseArmors { get; } = new List<IFormLinkGetter<IArmorGetter>>
-        {
+        private static List<IFormLinkGetter<IArmorGetter>> BaseArmors { get; } =
+        [
             Skyrim.Armor.ArmorDaedricBoots,
             Skyrim.Armor.ArmorDaedricCuirass,
             Skyrim.Armor.ArmorDaedricGauntlets,
@@ -327,7 +333,7 @@ namespace TrueUnleveledSkyrim.Patch
             Dragonborn.Armor.DLC2ArmorStalhrimLightGauntlets,
             Dragonborn.Armor.DLC2ArmorStalhrimLightHelmet,
             Dragonborn.Armor.DLC2ArmorStalhrimShield
-        };
+        ];
 
         private static bool GetArmorKeyword(IArmorGetter resolvedItem, List<IFormLinkGetter<IKeywordGetter>> keyList, out IFormLinkGetter<IKeywordGetter>? availableKey)
         {

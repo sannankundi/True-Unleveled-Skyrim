@@ -142,7 +142,7 @@ namespace TrueUnleveledSkyrim.Patch
                         ILeveledItemGetter? resolvedItem = entry.Item.Item.TryResolve<ILeveledItemGetter>(linkCache);
                         if (resolvedItem is not null)
                         {
-                            LeveledItem? newItem = state.PatchMod.LeveledItems.Where(x => x.EditorID == resolvedItem.EditorID + usedPostfix).FirstOrDefault();
+                            LeveledItem? newItem = state.PatchMod.LeveledItems.FirstOrDefault(x => x.EditorID == resolvedItem.EditorID + usedPostfix);
                             if (newItem is not null)
                             {
                                 entry.Item.Item = newItem.ToLink();
@@ -154,7 +154,7 @@ namespace TrueUnleveledSkyrim.Patch
                     IOutfitGetter? npcOutfit = npc.DefaultOutfit.TryResolve(linkCache);
                     if(npcOutfit is not null)
                     {
-                        Outfit? newOutfit = state.PatchMod.Outfits.Where(x => x.EditorID == npcOutfit.EditorID + usedPostfix).FirstOrDefault();
+                        Outfit? newOutfit = state.PatchMod.Outfits.FirstOrDefault(x => x.EditorID == npcOutfit.EditorID + usedPostfix);
                         if (newOutfit is not null)
                         {
                             npc.DefaultOutfit = newOutfit.ToNullableLink();
@@ -278,7 +278,7 @@ namespace TrueUnleveledSkyrim.Patch
         private static bool FulfillsPerkConditions(Npc npc, IPerkGetter perkEntry, Skill currSkill, ILinkCache linkCache)
         {
             // Check if NPC already has the perk or not.
-            if (npc.Perks!.Where(x => x.Perk.Equals(perkEntry.ToLink())).Any()) return false;
+            if (npc.Perks!.Any(x => x.Perk.Equals(perkEntry.ToLink()))) return false;
             
             bool fulfillsConditions = true;
             foreach(IConditionGetter? perkCondition in perkEntry.Conditions)
@@ -296,9 +296,9 @@ namespace TrueUnleveledSkyrim.Patch
                 else if (condFloat.Data is HasPerkConditionData perkData && perkData.Perk.Link.TryResolve(linkCache, out var requiredPerk))
                 {
                     if (condFloat.CompareOperator == CompareOperator.EqualTo && condFloat.ComparisonValue == 1 || condFloat.CompareOperator == CompareOperator.NotEqualTo && condFloat.ComparisonValue == 0)
-                        fulfillsConditions = npc.Perks!.Where(x => x.Perk.Equals(requiredPerk.ToLink())).Any();
+                        fulfillsConditions = npc.Perks!.Any(x => x.Perk.Equals(requiredPerk.ToLink()));
                     else if (condFloat.CompareOperator == CompareOperator.EqualTo && condFloat.ComparisonValue == 0 || condFloat.CompareOperator == CompareOperator.NotEqualTo && condFloat.ComparisonValue == 1)
-                        fulfillsConditions = !npc.Perks!.Where(x => x.Perk.Equals(requiredPerk.ToLink())).Any();
+                        fulfillsConditions = !npc.Perks!.Any(x => x.Perk.Equals(requiredPerk.ToLink()));
                 }
                 else return false;
             }
@@ -807,18 +807,15 @@ namespace TrueUnleveledSkyrim.Patch
             bool isHybridClass = weightList.Where(x => x.Key == Skill.Block || x.Key == Skill.OneHanded || x.Key == Skill.TwoHanded || x.Key == Skill.LightArmor || x.Key == Skill.HeavyArmor).Sum(x => x.Value) > 0 &&
                 weightList.Where(x => x.Key == Skill.Illusion || x.Key == Skill.Alteration || x.Key == Skill.Conjuration || x.Key == Skill.Destruction || x.Key == Skill.Restoration).Sum(x => x.Value) > 0;
 
-            float combatRatio = -1;
-            float magicRatio = -1;
-            if (isHybridClass)
-            {
+            if (isHybridClass) {
                 float weightSum = npcClass.StatWeights.Sum(x => x.Value);
                 float combatSum = npcClass.StatWeights[BasicStat.Health] > npcClass.StatWeights[BasicStat.Magicka] ? npcClass.StatWeights[BasicStat.Health] + npcClass.StatWeights[BasicStat.Stamina] : npcClass.StatWeights[BasicStat.Health];
                 float magicSum = npcClass.StatWeights[BasicStat.Magicka] > npcClass.StatWeights[BasicStat.Health] ? npcClass.StatWeights[BasicStat.Magicka] + npcClass.StatWeights[BasicStat.Stamina] : npcClass.StatWeights[BasicStat.Magicka];
                 if (npcClass.StatWeights[BasicStat.Health] == npcClass.StatWeights[BasicStat.Magicka])
                     weightSum -= npcClass.StatWeights[BasicStat.Stamina];
 
-                magicRatio = magicSum / weightSum;
-                combatRatio = combatSum / weightSum;
+                var magicRatio = magicSum / weightSum;
+                var combatRatio = combatSum / weightSum;
                 for (int i = 0; i < weightList.Count; i++)
                 {
                     switch (weightList[i].Key)

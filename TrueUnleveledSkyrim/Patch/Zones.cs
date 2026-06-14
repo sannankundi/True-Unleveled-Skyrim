@@ -24,20 +24,20 @@ namespace TrueUnleveledSkyrim.Patch
 
             if (Patcher.ModSettings.Value.Zones.StaticZoneLevels)
             {
-                encZone.MinLevel = (sbyte)Patcher.Randomizer.Next(zoneDefinition.MinLevel, zoneDefinition.MaxLevel);
+                encZone.MinLevel = (byte)Patcher.Randomizer.Next(zoneDefinition.MinLevel, zoneDefinition.MaxLevel);
                 encZone.MaxLevel = encZone.MinLevel;
             }
             else
             {
                 if (zoneDefinition.MaxLevel == 0)
                 {
-                    encZone.MinLevel = (sbyte)Patcher.Randomizer.Next(zoneDefinition.MinLevel, zoneDefinition.MinLevel + zoneDefinition.Range);
+                    encZone.MinLevel = (byte)Patcher.Randomizer.Next(zoneDefinition.MinLevel, zoneDefinition.MinLevel + zoneDefinition.Range);
                     encZone.MaxLevel = 0;
                 }
                 else
                 {
-                    encZone.MinLevel = (sbyte)Patcher.Randomizer.Next(zoneDefinition.MinLevel, zoneDefinition.MaxLevel - zoneDefinition.Range + 1);
-                    encZone.MaxLevel = (sbyte)(encZone.MinLevel + zoneDefinition.Range);
+                    encZone.MinLevel = (byte)Patcher.Randomizer.Next(zoneDefinition.MinLevel, zoneDefinition.MaxLevel - zoneDefinition.Range + 1);
+                    encZone.MaxLevel = (byte)(encZone.MinLevel + zoneDefinition.Range);
                 }
             }
         }
@@ -121,10 +121,10 @@ namespace TrueUnleveledSkyrim.Patch
                 }
             }
 
-            GameSettingFloat? easyEnemyLvlMult = Skyrim.GameSetting.fLeveledActorMultEasy.TryResolve(Patcher.LinkCache)!.DeepCopy() as GameSettingFloat; easyEnemyLvlMult!.Data = new float?(Patcher.ModSettings.Value.Zones.EasySpawnLevelMult); state.PatchMod.GameSettings.Set(easyEnemyLvlMult!);
-            GameSettingFloat? mediumEnemyLvlMult = Skyrim.GameSetting.fLeveledActorMultMedium.TryResolve(Patcher.LinkCache)!.DeepCopy() as GameSettingFloat; mediumEnemyLvlMult!.Data = new float?(Patcher.ModSettings.Value.Zones.NormalSpawnLevelMult); state.PatchMod.GameSettings.Set(mediumEnemyLvlMult!);
-            GameSettingFloat? hardEnemyLvlMult = Skyrim.GameSetting.fLeveledActorMultHard.TryResolve(Patcher.LinkCache)!.DeepCopy() as GameSettingFloat; hardEnemyLvlMult!.Data = new float?(Patcher.ModSettings.Value.Zones.HardSpawnLevelMult); state.PatchMod.GameSettings.Set(hardEnemyLvlMult!);
-            GameSettingFloat? veryHardEnemyLvlMult = Skyrim.GameSetting.fLeveledActorMultVeryHard.TryResolve(Patcher.LinkCache)!.DeepCopy() as GameSettingFloat; veryHardEnemyLvlMult!.Data = new float?(Patcher.ModSettings.Value.Zones.VeryHardSpawnLevelMult); state.PatchMod.GameSettings.Set(veryHardEnemyLvlMult!);
+            GameSettingFloat? easyEnemyLvlMult = Skyrim.GameSetting.fLeveledActorMultEasy.TryResolve(Patcher.LinkCache)!.DeepCopy() as GameSettingFloat; easyEnemyLvlMult!.Data = Patcher.ModSettings.Value.Zones.EasySpawnLevelMult; state.PatchMod.GameSettings.Set(easyEnemyLvlMult!);
+            GameSettingFloat? mediumEnemyLvlMult = Skyrim.GameSetting.fLeveledActorMultMedium.TryResolve(Patcher.LinkCache)!.DeepCopy() as GameSettingFloat; mediumEnemyLvlMult!.Data = Patcher.ModSettings.Value.Zones.NormalSpawnLevelMult; state.PatchMod.GameSettings.Set(mediumEnemyLvlMult!);
+            GameSettingFloat? hardEnemyLvlMult = Skyrim.GameSetting.fLeveledActorMultHard.TryResolve(Patcher.LinkCache)!.DeepCopy() as GameSettingFloat; hardEnemyLvlMult!.Data = Patcher.ModSettings.Value.Zones.HardSpawnLevelMult; state.PatchMod.GameSettings.Set(hardEnemyLvlMult!);
+            GameSettingFloat? veryHardEnemyLvlMult = Skyrim.GameSetting.fLeveledActorMultVeryHard.TryResolve(Patcher.LinkCache)!.DeepCopy() as GameSettingFloat; veryHardEnemyLvlMult!.Data = Patcher.ModSettings.Value.Zones.VeryHardSpawnLevelMult; state.PatchMod.GameSettings.Set(veryHardEnemyLvlMult!);
 
             Console.WriteLine("Processed " + processedRecords + " encounter zones in total.\n");
         }
