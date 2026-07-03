@@ -295,9 +295,9 @@ namespace TrueUnleveledSkyrim.Patch
                 }
                 else if (condFloat.Data is HasPerkConditionData perkData && perkData.Perk.Link.TryResolve(linkCache, out var requiredPerk))
                 {
-                    if (condFloat.CompareOperator == CompareOperator.EqualTo && condFloat.ComparisonValue == 1 || condFloat.CompareOperator == CompareOperator.NotEqualTo && condFloat.ComparisonValue == 0)
+                    if (condFloat.CompareOperator == CompareOperator.EqualTo && condFloat.ComparisonValue == 1 || condFloat.CompareOperator == CompareOperator.NotEqualTo && condFloat.ComparisonValue == 1)
                         fulfillsConditions = npc.Perks!.Any(x => x.Perk.Equals(requiredPerk.ToLink()));
-                    else if (condFloat.CompareOperator == CompareOperator.EqualTo && condFloat.ComparisonValue == 0 || condFloat.CompareOperator == CompareOperator.NotEqualTo && condFloat.ComparisonValue == 1)
+                    else if (condFloat.CompareOperator == CompareOperator.EqualTo && condFloat.ComparisonValue == 0 || condFloat.CompareOperator == CompareOperator.NotEqualTo && condFloat.ComparisonValue == 0)
                         fulfillsConditions = !npc.Perks!.Any(x => x.Perk.Equals(requiredPerk.ToLink()));
                 }
                 else return false;
@@ -440,9 +440,32 @@ namespace TrueUnleveledSkyrim.Patch
             return isFollower;
         }
 
-        private static bool SetFollowerScaling(Npc npc)
+        /// <summary>
+        /// Step 1: Bypass static leveling for followers with unlimited scaling enabled.
+        /// Sets them up with PcLevelMult scaling tied to player level.
+        /// </summary>
+        private static bool SetUnlimitedFollowerScaling(Npc npc)
         {
-            if (!IsFollower(npc))
+            if (!IsFollower(npc) || !Patcher.ModSettings.Value.NPCs.UnlimitedFollowerScaling)
+                return false;
+
+            // Set follower to scale 1:1 with player
+            npc.Configuration.Level = new PcLevelMult { LevelMult = 1 };
+            // Set minimum level to 1
+            npc.Configuration.CalcMinLevel = Math.Max(npc.Configuration.CalcMinLevel, (short)1);
+            // Set maximum level to a very high value so it scales infinitely with player
+            npc.Configuration.CalcMaxLevel = short.MaxValue;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Step 2: Handle follower scaling with a cap (original behavior or custom cap).
+        /// This is called if UnlimitedFollowerScaling is disabled.
+        /// </summary>
+        private static bool SetCappedFollowerScaling(Npc npc)
+        {
+            if (!IsFollower(npc) || Patcher.ModSettings.Value.NPCs.UnlimitedFollowerScaling)
                 return false;
 
             short currLevel = (npc.Configuration.Level as NpcLevel)?.Level ?? 40;
@@ -809,8 +832,8 @@ namespace TrueUnleveledSkyrim.Patch
 
             if (isHybridClass) {
                 float weightSum = npcClass.StatWeights.Sum(x => x.Value);
-                float combatSum = npcClass.StatWeights[BasicStat.Health] > npcClass.StatWeights[BasicStat.Magicka] ? npcClass.StatWeights[BasicStat.Health] + npcClass.StatWeights[BasicStat.Stamina] : npcClass.StatWeights[BasicStat.Health];
-                float magicSum = npcClass.StatWeights[BasicStat.Magicka] > npcClass.StatWeights[BasicStat.Health] ? npcClass.StatWeights[BasicStat.Magicka] + npcClass.StatWeights[BasicStat.Stamina] : npcClass.StatWeights[BasicStat.Magicka];
+                float combatSum = npcClass.StatWeights[BasicStat.Health] > npcClass.StatWeights[BasicStat.Magicka] ? npcClass.StatWeights[BasicStat.Health] + npcClass.StatWeights[BasicStat.Stamina] : npcClass.StatWeights[BasicStat.Magicka] + npcClass.StatWeights[BasicStat.Stamina];
+                float magicSum = npcClass.StatWeights[BasicStat.Magicka] > npcClass.StatWeights[BasicStat.Health] ? npcClass.StatWeights[BasicStat.Magicka] + npcClass.StatWeights[BasicStat.Stamina] : npcClass.StatWeights[BasicStat.Health] + npcClass.StatWeights[BasicStat.Stamina];
                 if (npcClass.StatWeights[BasicStat.Health] == npcClass.StatWeights[BasicStat.Magicka])
                     weightSum -= npcClass.StatWeights[BasicStat.Stamina];
 
@@ -896,7 +919,7 @@ namespace TrueUnleveledSkyrim.Patch
             raceModifiers = JsonHelper.LoadConfig<RaceModifiers>(TUSConstants.RaceModifiersPath);
             
             uint processedRecords = 0;
-            var vanillaCache = LoadOrder.Import<ISkyrimModGetter>(state.DataFolderPath, new List<ModKey>() { Skyrim.ModKey, Dawnguard.ModKey, Dragonborn.ModKey }, GameRelease.SkyrimSE).PriorityOrder.ToImmutableLinkCache();
+            var vanillaCache = LoadOrder.Import<ISkyrimModGetter>(state.DataFolderPath, new List<ModKey>() { Skyrim.ModKey, Dawnguard.ModKey, Dragonborn.ModKey }, GameRelease.SkyrimSE).PriorityOrder.Npc().WinningOverrides().ToList();
             foreach (INpcGetter? npcGetter in state.LoadOrder.PriorityOrder.Npc().WinningOverrides())
             {
                 if (npcGetter.EditorID is null)
@@ -911,12 +934,22 @@ namespace TrueUnleveledSkyrim.Patch
                 bool wasChanged = false;
                 Npc npcCopy = npcGetter.DeepCopy();
 
-                wasChanged |= SetStaticLevel(npcCopy, Patcher.LinkCache);
-                wasChanged |= RebalanceClassValues(npcCopy, state, Patcher.LinkCache); // since it uses a static link cache it has to go before equipment changes, otherwise it will try to use missing data
+                // Step 1: Check if this is a follower with unlimited scaling enabled
+                wasChanged |= SetUnlimitedFollowerScaling(npcCopy);
+                
+                // If not unlimited, proceed with normal static leveling and capped follower scaling
+                if (!wasChanged)
+                {
+                    wasChanged |= SetStaticLevel(npcCopy, Patcher.LinkCache);
+                }
+
+                wasChanged |= RebalanceClassValues(npcCopy, state, Patcher.LinkCache);
                 wasChanged |= ChangeEquipment(npcCopy, state, Patcher.LinkCache);
-                wasChanged |= RelevelNPCSkills(npcCopy, state.LinkCache); // dynamic link cache to account for local class changes
+                wasChanged |= RelevelNPCSkills(npcCopy, state.LinkCache);
                 wasChanged |= DistributeNPCPerks(npcCopy, state.LinkCache, vanillaCache);
-                wasChanged |= SetFollowerScaling(npcCopy);
+                
+                // Step 2: Apply capped follower scaling if unlimited wasn't applied
+                wasChanged |= SetCappedFollowerScaling(npcCopy);
 
                 ++processedRecords;
                 if (processedRecords % 100 == 0)
