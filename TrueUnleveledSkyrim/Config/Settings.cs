@@ -36,11 +36,11 @@ namespace TrueUnleveledSkyrim.Config
 
     public class TUSConfig_Items
     {
-        [Tooltip("The level below which items are purged from leveled lists. Setting it to 0 means there is no lower level limit.\nTiers (based on vanilla leveled lists):\n1 - Iron\n2 - Steel\n6 - Orcish\n12 - Dwarven\n19 - Elven\n27 - Glass\n36 - Ebony\n46 - Daedric")]
+        [Tooltip("The level below which items are purged from leveled lists. Setting it to 0 means there is no lower level limit.\nTiers (based on vanilla leveled lists):\n1 - Iron\n2 - Steel\n6 -[...]
         public int MinItemLevel { get; set; } = 0;
 
 
-        [Tooltip("The level from which items are purged from leveled lists. Setting it to 0 means there is no upper level limit.\nTiers (based on vanilla leveled lists):\n1 - Iron\n2 - Steel\n6 - Orcish\n12 - Dwarven\n19 - Elven\n27 - Glass\n36 - Ebony\n46 - Daedric")]
+        [Tooltip("The level from which items are purged from leveled lists. Setting it to 0 means there is no upper level limit.\nTiers (based on vanilla leveled lists):\n1 - Iron\n2 - Steel\n6 - [...]
         public int MaxItemLevel { get; set; } = 27;
 
 
@@ -48,11 +48,11 @@ namespace TrueUnleveledSkyrim.Config
         public bool UnlevelArtifacts { get; set; } = true;
 
 
-        [Tooltip("If enabled, leveled item lists can become entirely empty if all entries in them are above the max item level set above. Otherwise, lists that would otherwise be emptied will stay as they were before but still unleveled.")]
+        [Tooltip("If enabled, leveled item lists can become entirely empty if all entries in them are above the max item level set above. Otherwise, lists that would otherwise be emptied will stay[...]
         public bool AllowEmptyLists { get; set; } = false;
 
 
-        [Tooltip("If enabled, NPCs will also have a mid-tier item list instead of either having a strong or a weak sublist. The mid-tier one includes a selection of both the low and high tier items.")]
+        [Tooltip("If enabled, NPCs will also have a mid-tier item list instead of either having a strong or a weak sublist. The mid-tier one includes a selection of both the low and high tier item[...]
         public bool AllowMidTier { get; set; } = false;
     }
 
@@ -62,7 +62,7 @@ namespace TrueUnleveledSkyrim.Config
         public bool UseMorrowlootZoneBalance { get; set; } = true;
 
 
-        [Tooltip("If enabled, zones will not have different minimum and maximum levels and will not scale even minimally with the player, regardless of the defined ranges in the used configuration files.")]
+        [Tooltip("If enabled, zones will not have different minimum and maximum levels and will not scale even minimally with the player, regardless of the defined ranges in the used configuration[...]
         public bool StaticZoneLevels { get; set; } = true;
 
 
@@ -82,21 +82,25 @@ namespace TrueUnleveledSkyrim.Config
         public float VeryHardSpawnLevelMult { get; set; } = 1.5f;
 
 
-        [Tooltip("Encounter zones that originate from any of the plugins in this list will not be modified. Useful if you don't want the patcher to change anything in the base game so you can use a mod line Arena instead.")]
+        [Tooltip("Encounter zones that originate from any of the plugins in this list will not be modified. Useful if you don't want the patcher to change anything in the base game so you can use [...]
         public List<ModKey> PluginFilter { get; set; } = new();
     }
 
     public class TUSConfig_NPCs
     {
-        [Tooltip("If enabled, followers will scale 1:1 with the player with their maximum level cap being as high as their static level would be. They will still get skills and perks distributed as if they had their static levels, if enabled.")]
+        [Tooltip("If enabled, followers will scale 1:1 with the player with their maximum level cap being as high as their static level would be. They will still get skills and perks distributed a[...]
         public bool ScalingFollowers { get; set; } = true;
 
 
-        [Tooltip("If enabled, NPCs will have their classes rebuilt based on what equipment and spells they actually use, making the perks they get actually matter in gameplay. As a side note, it also fixes many issues, like several two handed draugr being assigned as archers.")]
+        [Tooltip("If enabled, followers will scale infinitely with the player. When disabled, followers will cap at their initial static level. This setting requires ScalingFollowers to be enabled.")]
+        public bool UnlimitedFollowerScaling { get; set; } = true;
+
+
+        [Tooltip("If enabled, NPCs will have their classes rebuilt based on what equipment and spells they actually use, making the perks they get actually matter in gameplay. As a side note, it a[...]
         public bool RebuildNPCClasses { get; set; } = true;
 
 
-        [Tooltip("If enabled, NPCs will have their vanilla perks removed before getting any new ones. Only removes perks originating from vanilla data files, so mod-added abilities can function. Doesn't remove anything if perk distribution is not enabled above or if the NPC is filtered via the list below.")]
+        [Tooltip("If enabled, NPCs will have their vanilla perks removed before getting any new ones. Only removes perks originating from vanilla data files, so mod-added abilities can function. D[...]
         public bool RemoveVanillaPerks { get; set; } = true;
 
 
@@ -104,11 +108,11 @@ namespace TrueUnleveledSkyrim.Config
         public bool DisableExtraDamagePerks { get; set; } = true;
 
 
-        [Tooltip("The amount of perk points NPCs get per every level they have. The distributed perks respect their skill level and prior perk requirements. Set to 0 to disable perk distribution.")]
+        [Tooltip("The amount of perk points NPCs get per every level they have. The distributed perks respect their skill level and prior perk requirements. Set to 0 to disable perk distribution.[...]
         public float NPCPerksPerLevel { get; set; } = 1f;
 
 
-        [Tooltip("The amount of skillpoints NPCs get per level they have. Set to 0 to not change NPC skill levels. The points are distributed among their skills based on their class and their major and minor skills. All of their skills start at 15, these are applied on top of that.")]
+        [Tooltip("The amount of skillpoints NPCs get per level they have. Set to 0 to not change NPC skill levels. The points are distributed among their skills based on their class and their maj[...]
         public float NPCSkillsPerLevel { get; set; } = 9.5f;
 
 
@@ -116,7 +120,7 @@ namespace TrueUnleveledSkyrim.Config
         public byte NPCMaxSkillLevel { get; set; } = 100;
 
 
-        [Tooltip("NPCs that have any of the keywords on this list, either in their own entry or their race entry, will not have their perks modified in any way. Useful if you want to stop undead or vampires from getting perks distributed among them.")]
+        [Tooltip("NPCs that have any of the keywords on this list, either in their own entry or their race entry, will not have their perks modified in any way. Useful if you want to stop undead [...]
         public List<FormLink<IKeywordGetter>> PerkDistributionFilter { get; set; } = new();
     }
 
