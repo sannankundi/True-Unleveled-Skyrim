@@ -103,7 +103,7 @@ namespace TrueUnleveledSkyrim.Patch
             foreach (var zoneGetter in state.LoadOrder.PriorityOrder.EncounterZone().WinningOverrides())
             {
                 // Skip encounter zones that can be found in the cache defined by the plugin filter list.
-                if (forbiddenCache.TryResolve(zoneGetter.ToLink(), out _))
+                if (forbiddenCache.TryResolve<IEncounterZoneGetter>(zoneGetter.ToLink(), out _))
                     continue;
 
                 bool wasChanged = false;
